@@ -112,17 +112,14 @@ int gAnalyzerAveCycles;
 double gStartFreq;
 double gEndFreq;
 
-//TH1D *hstAbsHstart, *hstAbsHstop, *hstHit1, *hstHit2, *hstMltHit1, *hstMltHit2, *hstMltHit1Dstr, *hstMltHit2Dstr;
-//TH2D *hst2DHit1, *hst2DHit2;
-//TH2I *hst2DPos;
-//TProfile *prfHit1, *prfHit2;
+// container for the interesting histograms
 GlobalHistos *gHistos;
+
+// ROOT server for web-based experiment monitoring
 THttpServer *serv;
 
 TFile* gOutputFile = NULL;
 VirtualOdb* gOdb = NULL;
-
-//TCanvas  *gMainWindow = NULL; 	// the online histogram window
 
 double GetTimeSec()
 {
@@ -182,13 +179,12 @@ void startRun(int transition,int run,int time)
   }
   gIsRunning = true;
   gRunNumber = run;
-  //  gIsPedestalsRun = gOdb->odbReadBool("/experiment/edit on start/Pedestals run");
-  // printf("Begin run: %d, pedestal run: %d\n", gRunNumber, gIsPedestalsRun);
+  gIsPedestalsRun = gOdb->odbReadBool("/experiment/edit on start/Pedestals run");
+  printf("Begin run: %d, pedestal run: %d\n", gRunNumber, gIsPedestalsRun);
   
   gCenterFreq = gOdb->odbReadDouble(ODB_CENTERFREQ);
   gFreqWidth  = gOdb->odbReadDouble(ODB_FREQWIDTH);
   gNFreq      = gOdb->odbReadInt(ODB_NFREQ,0,1);
-  //gFreqStep   = 2.0*gFreqWidth/(gNFreq-1);;
 
   gNDwellFreq = gOdb->odbReadInt(ODB_NDWELLFREQ,0,1);
   
@@ -208,10 +204,6 @@ void startRun(int transition,int run,int time)
   
   gCenterFreq = (gStartFreq + gEndFreq)/2.0;
   gFreqWidth = (gEndFreq - gStartFreq)/2.0;
-  //gCenterFreq = gOdb->odbReadDouble(ODB_CENTERFREQUENCY);
-  //gFreqWidth = gOdb->odbReadDouble(ODB_FREQUENCYWIDTH);
-  //gStartFreq = gCenterFreq - gFreqWidth;
-  //gEndFreq = gCenterFreq + gFreqWidth;
   gFreqStep   = 2.0*gFreqWidth/((double)(gNFreq-1));
   
   // ugly defaults:
@@ -236,18 +228,6 @@ void startRun(int transition,int run,int time)
 	  gHistos = new GlobalHistos();
 	  delete serv;
 	  serv = new THttpServer("http:8084");
-	  //printf("X max: %f\n", gHistos->prfHit2->GetXaxis()->GetXmax());
-	  //printf("gFreqWidth: %f\n", gFreqWidth);
-	  //serv->Register("/", gHistos->prfHit2); // Resonance
-	  //serv->Register("/", gHistos->hstHit2); // TOF Histogram
-	  //serv->Register("/", gHistos->hstMltHit2Dstr); // N ions vs Freq
-	  //serv->Register("/", gHistos->hstMltHit2 ); // Z Histo
-	  //serv->Register("/", gHistos->hst2DHit2); // TOF Matrix
-	  //serv->Register("/", gHistos->hst2DPos); // MCP Position 
-	  
-	  //serv->SetItemField("/", "_monitoring", "2000");
-	  //serv->SetItemField("/", "_layout", "tabs");
-	  //serv->SetItemField("/", "_drawitem", "[Resonance,TOFSpectrum,NIonsvsFreq,TOFMatrix,MCP_Pos]");
   }
 
     
@@ -259,14 +239,11 @@ void startRun(int transition,int run,int time)
     gOutputFile=NULL;
   }  
 
-  char filename[1024];
-  sprintf(filename, "output%05d.root", run);
-  //gOutputFile = new TFile(filename,"RECREATE"); 
-  //serv->Unregister(gOutputFile);
+  // If we want to write to a file, uncomment this.
+  //char filename[1024];
+  //sprintf(filename, "output%05d.root", run);
   //gOutputFile->Add(gManaHistosFolder);
 
-  //gHistos->reset();
-  //gHistos->resizeBins();
   HandleBOR_MCPTDC(run, time);
 }
 
@@ -350,7 +327,6 @@ void HandleMidasEvent(TMidasEvent& event)
       void *ptr2;
       size = event.LocateBank(event.GetData(),"MCPP", &ptr2);
       if (ptr2) {
-      	//printf("MPETMCPP Bank Found.\n");
 	HandleMCPP(event, ptr2, size);
       }
     }
@@ -496,13 +472,8 @@ int ProcessMidasOnline(TApplication*app)
    printf("Startup: run %d, is running: %d, is pedestals run: %d\n",gRunNumber,gIsRunning,gIsPedestalsRun);
    
    MyPeriodic tm(100,MidasPollHandler);
-   //MyPeriodic th(1000,SISperiodic);
-   //MyPeriodic tn(1000,StepThroughSISBuffer);
-   //MyPeriodic to(1000,Scalerperiodic);
 
    /*---- start main loop ----*/
-
-   //loop_online();
    app->Run(kTRUE);
 
    /* disconnect from experiment */
@@ -572,31 +543,9 @@ int main(int argc, char *argv[])
 	 help();
      }
 
-   //gROOT->MakeBatch();
    TApplication *app = new TApplication("rootana", &argc, argv);
-   //THttpServer serv("http:8084");
+
    serv = new THttpServer("http:8084");
-
-   //startRun(0, 10, 0);
-   //endRun(0, 10, 0);
-   //HandleBOR_MCPTDC(0, 0);
-   //HandleEOR_MCPTDC(0, 0);
-
-   //serv.Register("/", prfHit2); // Resonance
-   //serv.Register("/", hstHit2); // TOF Histogram
-   //serv.Register("/", hstMltHit2Dstr); // N ions vs Freq
-   //serv.Register("/", hst2DHit2); // TOF Matrix
-   //serv.Register("/", hst2DPos); // MCP Position
-   //serv.Register("/", gHistos->prfHit2); // Resonance
-
-   //serv.SetItemField("/", "_monitoring", "2000");
-   //serv.SetItemField("/", "_layout", "tabs");
-   //serv.SetItemField("/", "_drawitem", "[Resonance,TOFSpectrum,NIonsvsFreq,TOFMatrix,MCP_Pos]");
-   
-   //if(gROOT->IsBatch()) {
-   //	printf("Cannot run in batch mode\n");
-   //   return 1;
-   //}
 
    bool forceEnableGraphics = false;
    int  tcpPort = 0;
@@ -635,9 +584,6 @@ int main(int argc, char *argv[])
 	exit(-1);
    }
    
-   //if (tcpPort)
-     //StartMidasServer(tcpPort);
-	 
    gIsOffline = false;
 
    for (unsigned int i=1; i<args.size(); i++)
@@ -660,39 +606,6 @@ int main(int argc, char *argv[])
      return 0;
 	   
    gIsOffline = false;
-   //gEnableGraphics = true;
-//#ifdef HAVE_MIDAS
-//   pid_t pid, sid;
-//    if( daemonMode ) {
-//    	//std::cout << "ppid: " << getppid() << std::endl;
-//    	if(getppid()==1) {
-// 		printf("Another instance is already a daemon. Exit.\n");
-// 	}
-//    	pid = fork();
-// 	printf("pid is: %d\n",pid);
-// 	if( pid < 0 ) exit(-1);
-// 	else if ( pid > 0 ) exit(0);
-// 	sid = setsid();
-// 	if(sid<0) exit(-1);
-// 	
-// 	pid = fork();
-// 	printf("pid is: %d\n",pid);
-// 	if( pid < 0 ) exit(-1);
-// 	else if ( pid > 0 ) exit(0);
-// 	
-// 	umask(666);
-// 	printf("Becoming a daemon.\n");
-// 	close(STDIN_FILENO);
-// 	close(STDOUT_FILENO);
-// 	close(STDERR_FILENO);
-// 	if (tcpPort)
-//      		StartMidasServer(tcpPort);
-//    	ProcessMidasOnline(app);
-//    } else {
-//    	if (tcpPort)
-//      		StartMidasServer(tcpPort);
-//    	ProcessMidasOnline(app);
-//    }
 
    if( daemonMode ) {
 	   printf("Becoming a daemon\n");
@@ -705,7 +618,6 @@ int main(int argc, char *argv[])
 		   StartMidasServer(tcpPort);
 	   ProcessMidasOnline(app);
    }
-//#endif
    
    return 0;
 }
