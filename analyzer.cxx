@@ -449,7 +449,8 @@ int ProcessMidasOnline(TApplication*app)
    TMidasOnline *midas = TMidasOnline::instance();
 
    //int err = midas->connect(NULL,"mpet","rootana");
-   int err = midas->connect("localhost","mpet","rootana");
+   //int err = midas->connect("localhost","mpet","rootana");
+   int err = midas->connect("titan01.triumf.ca","mpet","rootana");
    assert(err == 0);
 
    gOdb = midas;
