@@ -22,6 +22,8 @@
 #include <assert.h>
 #include <signal.h>
 
+#include <TStyle.h>
+
 #include "vt2.h"
 #include "MCP_TDC.h"
 #include "Globals.h"
@@ -206,6 +208,17 @@ void HandleMCPTDC(TMidasEvent& event, void* ptr, int nitems)
 		}
 		wp = j;  // Adjust wp
 		printf("After move wp:%d  startfound:%d\n", nwp, startfound);
+
+		// Fit a gaussian to the resonance
+		//gStyle->SetOptFit(1);
+		gStyle->SetOptStat(11);
+		gStyle->SetStatW(0.175);
+		gStyle->SetStatH(0.14);
+		gHistos->mygaus->SetParameter(0,-10);
+		gHistos->mygaus->SetParameter(1,0);
+		gHistos->mygaus->SetParameter(2,10);
+		gHistos->mygaus->SetParameter(3,40);
+		gHistos->prfHit2->Fit("mygaus");
 	}
 } 
 

@@ -6,6 +6,8 @@
 #include <TH2D.h>
 #include <TH2I.h>
 
+#include <TF1.h>
+
 class GlobalHistos
 {
 	public:
@@ -13,6 +15,8 @@ class GlobalHistos
 		TH2D *hst2DHit2;
 		TH2I *hst2DPos;
 		TProfile *prfHit2;
+
+		TF1 *mygaus;
 		
 		GlobalHistos() {
 			// Shift the start and stop frequencies by half a step,
@@ -45,6 +49,9 @@ class GlobalHistos
 
 			hst2DPos = new TH2I("MCP_Pos","MCP Position",256,0,255,256,0,255);
 			hst2DPos->SetMarkerStyle(6);
+
+			mygaus = new TF1("mygaus", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]");
+			mygaus->SetParNames("A", "Center", "Sigma", "Offset");
 		}
 		
 		~GlobalHistos() {
@@ -60,6 +67,8 @@ class GlobalHistos
 				delete hst2DPos;
 			if(prfHit2)
 				delete prfHit2;
+			if(mygaus)
+				delete mygaus;
 		}
 
 		void reset() {
