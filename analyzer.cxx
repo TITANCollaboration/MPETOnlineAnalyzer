@@ -83,6 +83,7 @@
 #include <TGClient.h>
 #include <TGFrame.h>
 #include <TFolder.h>
+#include <TCanvas.h>
 #include "THttpServer.h"
 
 #include "Globals.h"
@@ -267,6 +268,10 @@ void endRun(int transition,int run,int time)
     }
 
   printf("End of run %d\n",run);
+  //TCanvas *canvas = new TCanvas("MyCanvas","Test Canvas",10,10,900,500);
+  //gHistos->prfHit2->Draw();
+  //canvas->Update();
+  //std::cin.ignore();
 }
 
 #include <TH1D.h>
@@ -587,13 +592,14 @@ int main(int argc, char *argv[])
    
    gIsOffline = false;
 
+   gROOT->SetBatch();
    for (unsigned int i=1; i<args.size(); i++)
      {
        const char* arg = args[i].c_str();
 
        if (arg[0] != '-')  
 	 {  
-	   gIsOffline = true;
+	   //gIsOffline = true;
 	   //gEnableGraphics = false;
 	   //gEnableGraphics |= forceEnableGraphics;
 	   ProcessMidasFile(app,arg);

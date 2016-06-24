@@ -45,6 +45,7 @@
 #include "Globals.h"
 
 void HandleMCPTDC(TMidasEvent& event, void* ptr, int wsize);
+void FitResonance();
 void HandleMCPP(TMidasEvent& event, void* ptr, int wsize); 
 void HandleBOR_MCPTDC(int run, int time);
 void HandleEOR_MCPTDC(int run, int time);

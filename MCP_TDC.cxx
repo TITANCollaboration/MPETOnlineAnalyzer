@@ -22,6 +22,8 @@
 #include <assert.h>
 #include <signal.h>
 
+#include <TStyle.h>
+
 #include "vt2.h"
 #include "MCP_TDC.h"
 #include "Globals.h"
@@ -207,7 +209,44 @@ void HandleMCPTDC(TMidasEvent& event, void* ptr, int nitems)
 		wp = j;  // Adjust wp
 		printf("After move wp:%d  startfound:%d\n", nwp, startfound);
 	}
+	FitResonance();
 } 
+
+void FitResonance() {
+	// Fit a gaussian to the resonance
+	
+	bool FitRes = gOdb->odbReadBool("/Experiment/Variables/Analyzer/Input/Fit Resonance",0,false);
+
+	//printf("FitRes: %d\n", FitRes);
+	if(!FitRes)
+		return;
+
+	// Set the position and options for the stat box
+	gStyle->SetOptFit(1);
+	gStyle->SetOptStat(11);
+	gStyle->SetStatW(0.175);
+	gStyle->SetStatH(0.14);
+
+	// Depth of resonance
+	gHistos->mygaus->SetParameter(0,-10);
+
+	// Resonance center
+	gHistos->mygaus->SetParameter(1,0);
+
+	// Use the excitation time to estimate the resonance width
+	double reswidth = 1000. / gOdb->odbReadDouble("/Equipment/TITAN_ACQ/ppg cycle/transition_QUAD2/time offset (ms)", 0, 2000);
+	//printf("quad time: %f\n", reswidth);
+	//gHistos->mygaus->SetParameter(2,10);
+	gHistos->mygaus->SetParameter(2, reswidth / 2.355);
+	
+	// use mean TOF as a guess for the offset
+	double mean = gHistos->prfHit2->GetMean(2);
+	//gHistos->mygaus->SetParameter(3,40);
+	gHistos->mygaus->SetParameter(3, mean);
+
+	// Hit the resonance
+	gHistos->prfHit2->Fit("mygaus");
+}
 
 void HandleMCPP(TMidasEvent& event, void* ptr, int nitems) {
 	// Handle MCP position data
