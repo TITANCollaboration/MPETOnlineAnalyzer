@@ -215,7 +215,7 @@ void HandleMCPTDC(TMidasEvent& event, void* ptr, int nitems)
 void FitResonance() {
 	// Fit a gaussian to the resonance
 	
-	bool FitRes = gOdb->odbReadBool("/Experiment/Variables/Analyzer/Input/Fit Resonance",0,true);
+	bool FitRes = gOdb->odbReadBool("/Experiment/Variables/Analyzer/Input/Fit Resonance",0,false);
 
 	//printf("FitRes: %d\n", FitRes);
 	if(!FitRes)
