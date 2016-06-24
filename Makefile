@@ -35,7 +35,9 @@ analyzer.exe: %.exe: %.o MCP_TDC.o $(HOME)/packages/rootana/lib/librootana.a
 dox:
 	doxygen
 
-clean::
+clean:
 	-rm -f *.o *.exe $(ALL)
+
+rebuild: clean all
 
 # end
